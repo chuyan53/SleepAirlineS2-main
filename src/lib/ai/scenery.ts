@@ -1,5 +1,7 @@
 import OpenAI from 'openai';
 
+const DEFAULT_OPENAI_IMAGE_MODEL = 'gpt-image-1-mini';
+
 export interface SceneryGenerationResult {
   imageBuffer: Buffer;
   imagePrompt: string;
@@ -43,7 +45,7 @@ export async function generateLandingScenery(
 
   const imagePrompt = buildSceneryPrompt(city, country, displayName);
   const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-  const model = process.env.OPENAI_IMAGE_MODEL ?? 'gpt-image-1-mini';
+  const model = process.env.OPENAI_IMAGE_MODEL ?? DEFAULT_OPENAI_IMAGE_MODEL;
 
   const response = await client.images.generate(
     isGptImageModel(model)
@@ -61,10 +63,13 @@ export async function generateLandingScenery(
           size: SCENERY_IMAGE_SIZE,
           quality: 'standard',
           n: 1,
-        }
+      }
   );
 
-  const b64 = response.data[0]?.b64_json;
+  const imageData = response.data?.[0];
+  if (!imageData) return null;
+
+  const b64 = imageData.b64_json;
   if (b64) {
     return {
       imageBuffer: Buffer.from(b64, 'base64'),
@@ -74,7 +79,7 @@ export async function generateLandingScenery(
     };
   }
 
-  const imageUrl = response.data[0]?.url;
+  const imageUrl = imageData.url;
   if (!imageUrl) return null;
 
   const imageRes = await fetch(imageUrl);

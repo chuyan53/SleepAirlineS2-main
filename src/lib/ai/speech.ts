@@ -3,6 +3,8 @@ import type { BroadcastStyle } from '../../types';
 
 type OpenAIVoice = 'alloy' | 'echo' | 'fable' | 'onyx' | 'nova' | 'shimmer';
 
+const DEFAULT_OPENAI_TTS_MODEL = 'tts-1';
+
 const VOICE_BY_STYLE: Record<BroadcastStyle, OpenAIVoice> = {
   formal_captain: 'onyx',
   poetic: 'fable',
@@ -21,7 +23,7 @@ export async function generateBroadcastSpeech(
   }
 
   const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-  const model = process.env.OPENAI_TTS_MODEL ?? 'tts-1';
+  const model = process.env.OPENAI_TTS_MODEL ?? DEFAULT_OPENAI_TTS_MODEL;
   const envVoice = process.env.OPENAI_TTS_VOICE as OpenAIVoice | undefined;
   const voice = (style && VOICE_BY_STYLE[style]) || envVoice || 'onyx';
 

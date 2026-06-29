@@ -107688,6 +107688,7 @@ function fallbackCaptainBroadcast(phase, passengerName, departureLocation, arriv
 
 // src/lib/ai/speech.ts
 var import_openai3 = __toESM(require("openai"));
+var DEFAULT_OPENAI_TTS_MODEL = "tts-1";
 var VOICE_BY_STYLE = {
   formal_captain: "onyx",
   poetic: "fable",
@@ -107701,7 +107702,7 @@ async function generateBroadcastSpeech(text, style) {
     throw new Error("OPENAI_API_KEY \u5C1A\u672A\u8A2D\u5B9A\u3002");
   }
   const client = new import_openai3.default({ apiKey: process.env.OPENAI_API_KEY });
-  const model = process.env.OPENAI_TTS_MODEL ?? "tts-1";
+  const model = process.env.OPENAI_TTS_MODEL ?? DEFAULT_OPENAI_TTS_MODEL;
   const envVoice = process.env.OPENAI_TTS_VOICE;
   const voice = style && VOICE_BY_STYLE[style] || envVoice || "onyx";
   const response = await client.audio.speech.create({
@@ -107715,6 +107716,7 @@ async function generateBroadcastSpeech(text, style) {
 
 // src/lib/ai/scenery.ts
 var import_openai4 = __toESM(require("openai"));
+var DEFAULT_OPENAI_IMAGE_MODEL = "gpt-image-1-mini";
 function buildSceneryPrompt(city, country, displayName) {
   const place = displayName || `${city}, ${country}`;
   return [
@@ -107740,7 +107742,7 @@ async function generateLandingScenery(city, country, displayName, flightId) {
   if (!process.env.OPENAI_API_KEY) return null;
   const imagePrompt = buildSceneryPrompt(city, country, displayName);
   const client = new import_openai4.default({ apiKey: process.env.OPENAI_API_KEY });
-  const model = process.env.OPENAI_IMAGE_MODEL ?? "gpt-image-1-mini";
+  const model = process.env.OPENAI_IMAGE_MODEL ?? DEFAULT_OPENAI_IMAGE_MODEL;
   const response = await client.images.generate(
     isGptImageModel(model) ? {
       model,
@@ -107757,7 +107759,9 @@ async function generateLandingScenery(city, country, displayName, flightId) {
       n: 1
     }
   );
-  const b64 = response.data[0]?.b64_json;
+  const imageData = response.data?.[0];
+  if (!imageData) return null;
+  const b64 = imageData.b64_json;
   if (b64) {
     return {
       imageBuffer: Buffer.from(b64, "base64"),
@@ -107766,7 +107770,7 @@ async function generateLandingScenery(city, country, displayName, flightId) {
       filename: safeFilename(city, flightId)
     };
   }
-  const imageUrl = response.data[0]?.url;
+  const imageUrl = imageData.url;
   if (!imageUrl) return null;
   const imageRes = await fetch(imageUrl);
   if (!imageRes.ok) return null;
