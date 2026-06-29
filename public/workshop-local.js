@@ -52,7 +52,7 @@
     const x =
       Math.cos(toRad(lat1)) * Math.sin(toRad(lat2)) -
       Math.sin(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.cos(dLon);
-    return (Math.atan2(y, x) * 180) / Math.PI + 360) % 360;
+    return (((Math.atan2(y, x) * 180) / Math.PI) + 360) % 360;
   }
 
   function isInDirection(bearing, direction) {
