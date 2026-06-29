@@ -1,0 +1,93 @@
+{
+  "$comment": "Sleep Airline 工作坊資料契約 — 檢查腳本與 docs/WORKSHOP_CONTRACT.md 共用",
+  "apiCalls": [
+    {
+      "id": "login",
+      "method": "POST",
+      "path": "/api/passenger",
+      "requiredBodyFields": ["passengerId", "name", "groupId"],
+      "description": "登入／建立乘客；寫入 Notion 時需要這三個值"
+    },
+    {
+      "id": "takeoff",
+      "method": "POST",
+      "path": "/api/flight/takeoff",
+      "requiredBodyFields": ["passengerId", "name", "groupId", "routeDirection"],
+      "optionalBodyFields": ["broadcastStyle"],
+      "description": "起飛；routeDirection 寫入 Notion；broadcastStyle 選填，僅影響 AI 廣播"
+    },
+    {
+      "id": "land",
+      "method": "POST",
+      "path": "/api/flight/land",
+      "requiredBodyFields": ["passengerId", "name", "groupId"],
+      "optionalBodyFields": ["broadcastStyle"],
+      "description": "降落；broadcastStyle 選填，僅影響 AI 廣播"
+    },
+    {
+      "id": "board",
+      "method": "GET",
+      "path": "/api/board",
+      "requiredQueryParams": ["groupId"],
+      "description": "小隊看板；Group ID 必須是 group_01 格式"
+    },
+    {
+      "id": "progress",
+      "method": "GET",
+      "path": "/api/flight/progress",
+      "requiredQueryParams": ["passengerId"],
+      "description": "飛行中進度更新"
+    }
+  ],
+  "requiredFunctions": ["doLogin", "doTakeoff", "doLand", "fetchBoard", "refreshProgress"],
+  "requiredDomIds": [
+    "login-form",
+    "input-pid",
+    "input-name",
+    "input-group",
+    "btn-login",
+    "btn-takeoff",
+    "btn-land",
+    "tk-direction",
+    "login-section",
+    "main-section"
+  ],
+  "dataRules": [
+    {
+      "id": "group-id",
+      "field": "groupId",
+      "pattern": "^group_\\d{2}$",
+      "examples": ["group_01", "group_02", "group_15"],
+      "description": "小隊 ID 必須用主辦指定的 group_0X，不可用中文"
+    },
+    {
+      "id": "passenger-id",
+      "field": "passengerId",
+      "minLength": 1,
+      "description": "乘客 ID 需唯一、與登入一致，供 Notion 對照"
+    }
+  ],
+  "lockedPaths": [
+    "src/lib/notion/**",
+    "src/lib/data-mode.ts",
+    "server.ts"
+  ],
+  "freeToChange": [
+    "public/style.css",
+    "public/index.html（保留 requiredDomIds 的 id）",
+    "public/app.js（保留 apiCalls 與 requiredFunctions）",
+    "src/lib/ai/broadcast.ts",
+    "src/lib/ai/speech.ts",
+    "src/lib/ai/scenery.ts",
+    "src/lib/flight/region.ts",
+    "src/lib/flight/social.ts",
+    "src/lib/flight/social-candidates.ts",
+    "src/lib/ai/social-cue.ts",
+    "機長 broadcastStyle（選填 API 欄位或改 broadcast.ts）"
+  ],
+  "vercelEnvPhase3": [
+    "NOTION_API_KEY",
+    "NOTION_DASHBOARD_DB_ID",
+    "NOTION_LANDSCAPE_DB_ID"
+  ]
+}

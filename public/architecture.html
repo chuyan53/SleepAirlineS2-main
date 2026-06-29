@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>系統架構 | 甦醒航班</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .arch-page { max-width: 760px; margin: 0 auto; padding: 32px 16px 48px; position: relative; z-index: 1; }
+    .arch-back { display: inline-block; color: var(--muted); font-size: 12px; text-decoration: none; margin-bottom: 24px; }
+    .arch-back:hover { color: var(--sky); }
+    .arch-title { color: var(--sky); font-size: 22px; font-weight: 600; letter-spacing: 2px; margin-bottom: 6px; }
+    .arch-sub { color: var(--muted); font-size: 12px; margin-bottom: 28px; }
+    .arch-diagram { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px 12px; margin-bottom: 28px; overflow-x: auto; }
+    .arch-diagram svg { display: block; min-width: 640px; width: 100%; height: auto; }
+    .arch-section-title { color: var(--amber); font-size: 11px; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 14px; }
+    .arch-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    @media (max-width: 600px) { .arch-grid { grid-template-columns: 1fr; } }
+    .arch-card h3 { color: var(--text); font-size: 13px; margin-bottom: 10px; }
+    .arch-card ul { list-style: none; padding: 0; }
+    .arch-card li { color: var(--muted); font-size: 12px; line-height: 1.7; padding-left: 12px; position: relative; }
+    .arch-card li::before { content: '·'; position: absolute; left: 0; color: var(--sky); }
+  </style>
+</head>
+<body>
+  <div class="arch-page">
+    <a class="arch-back" href="/">← 返回甦醒航班</a>
+    <h1 class="arch-title">甦醒航班 · 系統怎麼串在一起</h1>
+    <p class="arch-sub">Vibe Coding 入門 · 以 Sleep Airline 為例</p>
+
+    <div class="arch-diagram">
+      <svg viewBox="0 0 660 360" xmlns="http://www.w3.org/2000/svg" aria-label="系統架構圖">
+        <defs>
+          <marker id="arr" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6 Z" fill="#38bdf8"/>
+          </marker>
+          <marker id="arr-dim" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6 Z" fill="#6b8cad"/>
+          </marker>
+        </defs>
+
+        <text x="24" y="36" fill="#6b8cad" font-size="12" font-weight="600" font-family="system-ui,sans-serif">建置：如何把專案放上網路</text>
+        <rect x="16" y="48" width="628" height="104" rx="10" fill="#071120" stroke="#1e3a5f"/>
+
+        <text x="24" y="212" fill="#6b8cad" font-size="12" font-weight="600" font-family="system-ui,sans-serif">運行：使用者打開網站之後</text>
+        <rect x="16" y="224" width="628" height="104" rx="10" fill="#071120" stroke="#1e3a5f"/>
+
+        <!-- build edges -->
+        <path d="M154 104 L172 104 L172 104 L190 104" fill="none" stroke="#38bdf8" stroke-width="2" marker-end="url(#arr)"/>
+        <path d="M320 104 L338 104 L338 104 L356 104" fill="none" stroke="#38bdf8" stroke-width="2" marker-end="url(#arr)"/>
+        <path d="M466 104 L484 104 L484 104 L502 104" fill="none" stroke="#38bdf8" stroke-width="2" marker-end="url(#arr)"/>
+
+        <!-- run edges -->
+        <path d="M134 280 L160 280 L160 280 L190 280" fill="none" stroke="#1e3a5f" stroke-width="2" marker-end="url(#arr)"/>
+        <path d="M320 280 L338 280 L338 280 L356 280" fill="none" stroke="#1e3a5f" stroke-width="2" marker-end="url(#arr)"/>
+        <path d="M466 280 L484 280 L484 280 L502 280" fill="none" stroke="#1e3a5f" stroke-width="2" marker-end="url(#arr)"/>
+
+        <!-- deploy bridge -->
+        <path d="M567 136 L567 196 L255 196 L255 248" fill="none" stroke="#6b8cad" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#arr-dim)"/>
+        <text x="410" y="204" text-anchor="middle" fill="#6b8cad" font-size="10" font-family="system-ui,sans-serif">部署上線</text>
+
+        <!-- api key -->
+        <rect x="356" y="148" width="276" height="36" rx="8" fill="#0d1829" stroke="#1e3a5f"/>
+        <text x="494" y="170" text-anchor="middle" fill="#6b8cad" font-size="10.5" font-family="system-ui,sans-serif">API Key 存放在 Vercel · 不進 GitHub</text>
+        <path d="M494 184 L494 224" fill="none" stroke="#6b8cad" stroke-width="1.5" stroke-dasharray="4 4"/>
+
+        <!-- boxes: build -->
+        <g><rect x="24" y="72" width="130" height="64" rx="10" fill="#0d1829" stroke="#9386F2" stroke-width="2"/><text x="89" y="98" text-anchor="middle" fill="#e2eaf5" font-size="13" font-weight="600" font-family="system-ui">AI 編輯器</text><text x="89" y="116" text-anchor="middle" fill="#6b8cad" font-size="10" font-family="system-ui">Cursor · Claude · Codex</text></g>
+        <g><rect x="190" y="72" width="130" height="64" rx="10" fill="#0d1829" stroke="#7BAFE9" stroke-width="2"/><text x="255" y="98" text-anchor="middle" fill="#e2eaf5" font-size="13" font-weight="600" font-family="system-ui">程式文字檔</text><text x="255" y="116" text-anchor="middle" fill="#6b8cad" font-size="10" font-family="system-ui">HTML · CSS · JS · TS</text></g>
+        <g><rect x="356" y="72" width="110" height="64" rx="10" fill="#0d1829" stroke="#3FA266" stroke-width="2"/><text x="411" y="98" text-anchor="middle" fill="#e2eaf5" font-size="13" font-weight="600" font-family="system-ui">GitHub</text><text x="411" y="116" text-anchor="middle" fill="#6b8cad" font-size="10" font-family="system-ui">版本備份</text></g>
+        <g><rect x="502" y="72" width="130" height="64" rx="10" fill="#0d1829" stroke="#D08770" stroke-width="2"/><text x="567" y="98" text-anchor="middle" fill="#e2eaf5" font-size="13" font-weight="600" font-family="system-ui">Vercel</text><text x="567" y="116" text-anchor="middle" fill="#6b8cad" font-size="10" font-family="system-ui">網站 + API 託管</text></g>
+
+        <!-- boxes: run -->
+        <g><rect x="24" y="248" width="110" height="64" rx="10" fill="#0d1829" stroke="#F1B467" stroke-width="2"/><text x="79" y="274" text-anchor="middle" fill="#e2eaf5" font-size="13" font-weight="600" font-family="system-ui">使用者</text><text x="79" y="292" text-anchor="middle" fill="#6b8cad" font-size="10" font-family="system-ui">瀏覽器開啟網站</text></g>
+        <g><rect x="190" y="248" width="130" height="64" rx="10" fill="#0d1829" stroke="#D08770" stroke-width="2"/><text x="255" y="274" text-anchor="middle" fill="#e2eaf5" font-size="13" font-weight="600" font-family="system-ui">Vercel API</text><text x="255" y="292" text-anchor="middle" fill="#6b8cad" font-size="10" font-family="system-ui">登入 · 起飛 · 降落</text></g>
+        <g><rect x="356" y="248" width="110" height="64" rx="10" fill="#0d1829" stroke="#3FA266" stroke-width="2"/><text x="411" y="274" text-anchor="middle" fill="#e2eaf5" font-size="13" font-weight="600" font-family="system-ui">Notion</text><text x="411" y="292" text-anchor="middle" fill="#6b8cad" font-size="10" font-family="system-ui">航班紀錄資料庫</text></g>
+        <g><rect x="502" y="248" width="130" height="64" rx="10" fill="#0d1829" stroke="#9386F2" stroke-width="2"/><text x="567" y="274" text-anchor="middle" fill="#e2eaf5" font-size="13" font-weight="600" font-family="system-ui">OpenAI</text><text x="567" y="292" text-anchor="middle" fill="#6b8cad" font-size="10" font-family="system-ui">機長廣播文字與語音</text></g>
+      </svg>
+    </div>
+
+    <div class="arch-section-title">基本觀念</div>
+    <div class="arch-grid">
+      <div class="card arch-card">
+        <h3>程式 = 文字檔</h3>
+        <ul>
+          <li>HTML：頁面結構</li>
+          <li>CSS：外觀樣式</li>
+          <li>JS / TS：互動與邏輯</li>
+        </ul>
+      </div>
+      <div class="card arch-card">
+        <h3>前端 vs 後端</h3>
+        <ul>
+          <li>前端：在瀏覽器執行，負責畫面</li>
+          <li>後端：在 Vercel 執行，負責資料與 AI</li>
+        </ul>
+      </div>
+      <div class="card arch-card">
+        <h3>JSON</h3>
+        <ul>
+          <li>前後端溝通用的資料格式</li>
+          <li>登入、起飛時傳遞姓名與小隊</li>
+        </ul>
+      </div>
+      <div class="card arch-card">
+        <h3>Notion = 資料庫</h3>
+        <ul>
+          <li>航班紀錄存在 Notion 表格</li>
+          <li>起飛新增一列，降落更新同一列</li>
+        </ul>
+      </div>
+      <div class="card arch-card">
+        <h3>AI 的角色</h3>
+        <ul>
+          <li>寫程式：Cursor、Claude、Codex</li>
+          <li>產品內 AI：OpenAI 生成機長廣播</li>
+        </ul>
+      </div>
+      <div class="card arch-card">
+        <h3>GitHub 與 Vercel</h3>
+        <ul>
+          <li>下載 ZIP → 本機改完 → 推到自己 GitHub</li>
+          <li>Vercel Import 學員 repo，自動發布網站</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>甦醒航班 | Sleep Airline</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+  <body>
+
+  <!-- ════════ Login Section ════════ -->
+  <div id="login-section" class="login-wrap">
+    <div class="login-box">
+      <div class="card">
+        <div style="text-align:center; margin-bottom:24px;">
+          <a href="architecture.html" class="brand-link" title="系統架構說明">
+            <div class="header-brand">✈ 甦醒航班</div>
+            <div class="header-sub">Sleep Airline Workshop System</div>
+          </a>
+        </div>
+
+        <div class="section-title">乘客登入</div>
+
+        <div id="login-error" class="msg msg-error"></div>
+        <div id="login-success" class="msg msg-success"></div>
+
+        <form id="login-form">
+          <div class="form-group">
+            <div class="label">乘客 ID</div>
+            <input class="input" id="input-pid" placeholder="例：p_001" required>
+          </div>
+          <div class="form-group">
+            <div class="label">姓名</div>
+            <input class="input" id="input-name" placeholder="你的名字" required>
+          </div>
+          <div class="form-group">
+            <div class="label">小隊</div>
+            <select class="select" id="input-group" required>
+              <option value="">請選擇小隊</option>
+              <option value="group_01">第一組</option>
+              <option value="group_02">第二組</option>
+              <option value="group_03">第三組</option>
+              <option value="group_04">第四組</option>
+              <option value="group_05">第五組</option>
+              <option value="group_06">第六組</option>
+              <option value="group_07">第七組</option>
+              <option value="group_08">第八組</option>
+              <option value="group_09">第九組</option>
+              <option value="group_10">第十組</option>
+              <option value="group_11">第十一組</option>
+              <option value="group_12">第十二組</option>
+              <option value="group_13">第十三組</option>
+              <option value="group_14">第十四組</option>
+              <option value="group_15">第十五組</option>
+            </select>
+          </div>
+          <button type="submit" class="btn btn-primary" id="btn-login">登入</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════ Main Section ════════ -->
+  <div id="main-section" class="hidden">
+
+    <!-- Header -->
+    <div class="header">
+      <div>
+        <a href="architecture.html" class="brand-link" title="系統架構說明">
+          <div class="header-brand">✈ 甦醒航班</div>
+          <div class="header-sub">Sleep Airline Workshop System</div>
+        </a>
+      </div>
+      <div class="header-right">
+        <span class="text-muted" id="hdr-group" style="font-size:12px"></span>
+        <span id="hdr-badge"></span>
+        <button class="btn btn-ghost" id="btn-logout" style="font-size:11px">登出</button>
+      </div>
+    </div>
+
+    <div class="container">
+      <!-- Messages -->
+      <div id="main-error" class="msg msg-error"></div>
+      <div id="main-success" class="msg msg-success"></div>
+
+      <div class="grid">
+        <!-- ──── Left Column ──── -->
+        <div class="col">
+
+          <!-- Current Status -->
+          <div class="card" id="status-card">
+            <div class="section-title">目前狀態</div>
+            <div class="info-row">
+              <span class="info-label">乘客</span>
+              <span class="info-value text-bold" id="st-name"></span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">小隊</span>
+              <span class="info-value" id="st-group"></span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">目前位置</span>
+              <span class="info-value text-amber" id="st-location"></span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">狀態</span>
+              <span id="st-badge"></span>
+            </div>
+          </div>
+
+          <!-- Takeoff Panel -->
+          <div class="card" id="takeoff-card">
+            <div class="section-title">起飛準備</div>
+            <div class="departure-box">
+              <div class="departure-label">今晚起飛地</div>
+              <div class="departure-value" id="tk-departure">✈ </div>
+            </div>
+            <div class="form-group">
+              <div class="label">航線方向</div>
+              <select class="select" id="tk-direction">
+                <option value="auto">自動</option>
+                <option value="eastbound">向東</option>
+                <option value="westbound">向西</option>
+                <option value="northbound">向北</option>
+                <option value="southbound">向南</option>
+                <option value="northeast">東北</option>
+                <option value="northwest">西北</option>
+                <option value="southeast">東南</option>
+                <option value="southwest">西南</option>
+                <option value="circular">環形</option>
+                <option value="unknown">未知</option>
+              </select>
+            </div>
+            <button class="btn btn-amber" id="btn-takeoff">✈  起飛</button>
+          </div>
+
+          <!-- In-Flight Panel -->
+          <div class="card hidden" id="flight-card">
+            <div class="section-title">飛行中</div>
+            <div class="info-row">
+              <span class="info-label">出發地</span>
+              <span class="info-value" id="fl-departure"></span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">起飛時間</span>
+              <span class="info-value" id="fl-takeoff-time"></span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">航線方向</span>
+              <span class="info-value" id="fl-direction"></span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">目前空域</span>
+              <span class="info-value text-sky" id="fl-region"></span>
+            </div>
+            <div class="progress-wrap">
+              <div class="info-row">
+                <span class="info-label">飛行進度</span>
+                <span class="info-value text-sky" id="fl-progress-text">0%</span>
+              </div>
+              <div class="progress-bar"><div class="progress-fill" id="fl-progress-bar" style="width:0%"></div></div>
+              <div class="progress-labels"><span>登機雲層</span><span>抵達港灣</span></div>
+            </div>
+            <hr class="divider">
+            <div class="section-title" style="font-size:13px;margin-bottom:8px">起飛廣播</div>
+            <div class="broadcast-box hidden" id="fl-takeoff-broadcast"></div>
+            <hr class="divider">
+            <button class="btn btn-green" id="btn-land">⬇  降落</button>
+          </div>
+
+          <!-- Captain Broadcast -->
+          <div class="card hidden" id="broadcast-card">
+            <div class="section-title">降落廣播</div>
+            <div class="broadcast-box" id="bc-text"></div>
+            <div class="social-cue-box hidden" id="bc-cue"></div>
+            <div class="flight-summary">
+              <span id="bc-route"></span>
+              <span id="bc-duration"></span>
+            </div>
+          </div>
+
+          <!-- Landing Scenery -->
+          <div class="card hidden" id="scenery-card">
+            <div class="section-title">降落風景</div>
+            <div id="scenery-loading" class="scenery-loading hidden">AI 正在繪製當地風景…</div>
+            <div id="scenery-wrap" class="scenery-wrap hidden">
+              <img id="scenery-img" class="scenery-img" alt="降落風景">
+              <div class="scenery-caption" id="scenery-caption"></div>
+              <a id="scenery-link" class="scenery-link" href="#" target="_blank" rel="noopener">查看圖片 URL</a>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- ──── Right Column ──── -->
+        <div class="col">
+
+          <!-- Group Flight Board -->
+          <div class="card" id="board-card">
+            <div class="board-header">
+              <div class="section-title" style="margin-bottom:0">
+                小隊航班看板 — <span id="bd-group"></span>
+              </div>
+              <button class="btn btn-ghost" id="btn-refresh" style="font-size:11px">重新整理</button>
+            </div>
+
+            <div id="bd-empty" class="board-empty">本小隊尚無航班記錄</div>
+
+            <div class="overflow-x">
+              <table class="board-table hidden" id="bd-table">
+                <thead>
+                  <tr>
+                    <th>乘客</th>
+                    <th>狀態</th>
+                    <th>出發</th>
+                    <th>空域 / 抵達</th>
+                    <th>時長</th>
+                    <th>時間</th>
+                  </tr>
+                </thead>
+                <tbody id="bd-tbody"></tbody>
+              </table>
+            </div>
+
+            <!-- Social Cues (collapsible) -->
+            <div class="board-sub hidden" id="bd-cues">
+              <div class="section-title collapsible" onclick="toggleSection('bd-cues-list', this)">
+                社交提示 <span class="collapse-arrow">▾</span>
+              </div>
+              <div id="bd-cues-list"></div>
+            </div>
+
+            <!-- Broadcast Records (collapsible) -->
+            <div class="board-sub hidden" id="bd-broadcasts">
+              <div class="section-title collapsible" onclick="toggleSection('bd-broadcasts-list', this)">
+                機長廣播紀錄 <span class="collapse-arrow">▾</span>
+              </div>
+              <div id="bd-broadcasts-list"></div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="workshop-local.js"></script>
+  <script src="broadcast-audio.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
