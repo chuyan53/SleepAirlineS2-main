@@ -31,6 +31,7 @@ let groupFlights = [];
 let lastLandedFlight = null;
 let landingScenery = null;
 let refreshTimer = null;
+const EXTERNAL_SYNC_MS = 5000;
 
 // ── DOM Refs ──────────────────────────────────────────────────────────────────
 
@@ -418,16 +419,34 @@ async function fetchBoard() {
   } catch { /* silent */ }
 }
 
+async function syncPassengerState() {
+  if (!passenger) return;
+  try {
+    const data = await api('POST', '/api/passenger', {
+      passengerId: passenger.passengerId,
+      name: passenger.name,
+      groupId: passenger.groupId,
+    });
+    passenger = data.passenger;
+    lastLandedFlight = data.lastLandedFlight || null;
+    landingScenery = data.landingScenery || null;
+    if (passenger.status !== 'in_flight') activeFlight = null;
+    updateUI();
+    await fetchBoard();
+  } catch { /* silent */ }
+}
+
 async function refreshProgress() {
   if (!passenger) return;
   try {
     const data = await api('GET', '/api/flight/progress?passengerId=' + encodeURIComponent(passenger.passengerId));
     if (data.activeFlight) {
       activeFlight = data.activeFlight;
-    } else {
-      activeFlight = null;
+      passenger.status = 'in_flight';
+      updateUI();
+      return;
     }
-    updateUI();
+    await syncPassengerState();
   } catch { /* silent */ }
 }
 
@@ -436,11 +455,13 @@ async function refreshProgress() {
 function startAutoRefresh() {
   stopAutoRefresh();
   refreshTimer = setInterval(() => {
-    if (passenger && passenger.status === 'in_flight') {
+    if (!passenger) return;
+    if (passenger.status === 'in_flight') {
       refreshProgress();
-      fetchBoard();
+    } else {
+      syncPassengerState();
     }
-  }, 60000);
+  }, EXTERNAL_SYNC_MS);
 }
 
 function stopAutoRefresh() {
