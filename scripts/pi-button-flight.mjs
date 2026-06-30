@@ -19,6 +19,7 @@ const CONFIG = {
 
 let busy = false;
 let lastPressAt = 0;
+let pollingTimer = null;
 
 function requireConfig() {
   if (!CONFIG.baseUrl) throw new Error('PI_BASE_URL is required.');
@@ -64,7 +65,8 @@ async function playSpeech(text) {
 
   const audioPath = join(tmpdir(), `sleep-airline-${Date.now()}.mp3`);
   await writeFile(audioPath, Buffer.from(await res.arrayBuffer()));
-  const played = spawnSync(CONFIG.playerCommand, ['-q', audioPath], { stdio: 'inherit' });
+  const playerArgs = CONFIG.playerCommand === 'pw-play' ? [audioPath] : ['-q', audioPath];
+  const played = spawnSync(CONFIG.playerCommand, playerArgs, { stdio: 'inherit' });
   await unlink(audioPath).catch(() => {});
   if (played.status !== 0) {
     throw new Error(`${CONFIG.playerCommand} failed. Check speaker output and player installation.`);
@@ -115,30 +117,65 @@ async function triggerFlightStep() {
   }
 }
 
+function configurePullUp(pin) {
+  const pinText = String(pin);
+  const pinctrl = spawnSync('pinctrl', ['set', pinText, 'ip', 'pu'], { stdio: 'ignore' });
+  if (pinctrl.status === 0) return true;
+  const raspiGpio = spawnSync('raspi-gpio', ['set', pinText, 'ip', 'pu'], { stdio: 'ignore' });
+  return raspiGpio.status === 0;
+}
+
+function readPinLow(pin) {
+  const pinText = String(pin);
+  const pinctrl = spawnSync('pinctrl', [pinText], { encoding: 'utf8' });
+  const output = `${pinctrl.stdout || ''} ${pinctrl.stderr || ''}`.toLowerCase();
+  if (output.includes(' lo') || output.includes('|lo') || output.includes('level=0')) return true;
+  if (output.includes(' hi') || output.includes('|hi') || output.includes('level=1')) return false;
+
+  const raspiGpio = spawnSync('raspi-gpio', ['get', pinText], { encoding: 'utf8' });
+  const gpioOutput = `${raspiGpio.stdout || ''} ${raspiGpio.stderr || ''}`.toLowerCase();
+  if (gpioOutput.includes('level=0')) return true;
+  if (gpioOutput.includes('level=1')) return false;
+  return false;
+}
+
+function startPollingButton() {
+  let wasLow = readPinLow(CONFIG.gpioPin);
+  pollingTimer = setInterval(() => {
+    const isLow = readPinLow(CONFIG.gpioPin);
+    if (isLow && !wasLow) triggerFlightStep();
+    wasLow = isLow;
+  }, 80);
+}
+
 async function main() {
   requireConfig();
+  configurePullUp(CONFIG.gpioPin);
 
-  let Gpio;
+  console.log(`[Sleep Airline Pi] Base URL: ${CONFIG.baseUrl}`);
+
+  let button = null;
   try {
-    ({ Gpio } = await import('onoff'));
-  } catch {
-    console.error('Missing Raspberry Pi GPIO dependency. Run: npm install onoff');
-    process.exit(1);
+    const { Gpio } = await import('onoff');
+    button = new Gpio(CONFIG.gpioPin, 'in', 'falling', { debounceTimeout: 80 });
+    console.log(`[Sleep Airline Pi] Ready with onoff. GPIO ${CONFIG.gpioPin} -> GND button.`);
+    button.watch((err, value) => {
+      if (err) {
+        console.error('[Sleep Airline Pi] GPIO error:', err.message);
+        return;
+      }
+      if (value === 0) triggerFlightStep();
+    });
+  } catch (err) {
+    console.warn('[Sleep Airline Pi] onoff GPIO unavailable; using pinctrl polling fallback.');
+    console.warn(`[Sleep Airline Pi] GPIO detail: ${err instanceof Error ? err.message : err}`);
+    console.log(`[Sleep Airline Pi] Ready with polling. GPIO ${CONFIG.gpioPin} -> GND button.`);
+    startPollingButton();
   }
 
-  const button = new Gpio(CONFIG.gpioPin, 'in', 'falling', { debounceTimeout: 80 });
-  console.log(`[Sleep Airline Pi] Ready. GPIO ${CONFIG.gpioPin} -> GND button, pull-up expected.`);
-  console.log(`[Sleep Airline Pi] Base URL: ${CONFIG.baseUrl}`);
-  button.watch((err, value) => {
-    if (err) {
-      console.error('[Sleep Airline Pi] GPIO error:', err.message);
-      return;
-    }
-    if (value === 0) triggerFlightStep();
-  });
-
   process.on('SIGINT', () => {
-    button.unexport();
+    if (pollingTimer) clearInterval(pollingTimer);
+    if (button) button.unexport();
     process.exit(0);
   });
 }
@@ -147,4 +184,5 @@ main().catch((err) => {
   console.error('[Sleep Airline Pi] Fatal:', err instanceof Error ? err.message : err);
   process.exit(1);
 });
+
 
