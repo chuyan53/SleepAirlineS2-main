@@ -10,7 +10,8 @@
     "start": "tsx server.ts",
     "build": "node scripts/build-vercel.mjs",
     "setup": "tsx scripts/setup-notion.ts",
-    "check:contract": "node scripts/check-workshop-contract.mjs"
+    "check:contract": "node scripts/check-workshop-contract.mjs",
+    "pi:start": "node scripts/pi-button-flight.mjs"
   },
   "dependencies": {
     "@notionhq/client": "^2.2.15",
